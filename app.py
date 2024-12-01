@@ -1,4 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+from database import load_jobs_from_db
+from sqlalchemy import text
+import asyncio
 
 app = Flask(__name__)
 
@@ -33,12 +36,16 @@ JOBS = [
 
 @app.route('/')
 def index():
-    return render_template('home.html', jobs=JOBS, company_name='CK')
+    jobs = asyncio.run(load_jobs_from_db())
+    # print(jobs)
+    return render_template('home.html', jobs=jobs, company_name='CK')
+    # return "jobs"
 
 
 @app.route('/api/jobs')
 def list_jobs():
-    return jsonify(JOBS)
+    jobs = asyncio.run(load_jobs_from_db())
+    return jsonify(jobs)
 
 
 if __name__ == '__main__':
