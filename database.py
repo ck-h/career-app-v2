@@ -54,3 +54,21 @@ async def load_jobs_from_db():
 	await engine.dispose()
 
 
+async def load_job_from_db(id):
+	engine = create_async_engine(f"postgresql+asyncpg://{tmpPostgres.username}:{tmpPostgres.password}@{tmpPostgres.hostname}{tmpPostgres.path}?ssl=require", echo=True)
+	job_id = int(id)
+	async with engine.connect() as conn:
+		result = await conn.execute(
+			text("SELECT * FROM jobs WHERE id = :val"), 
+			{"val": job_id}
+		)
+
+		row = result.all()
+		if len(row) == 0:
+			return None
+		else:
+			return row[0]._asdict()
+		
+	await engine.dispose()
+
+
