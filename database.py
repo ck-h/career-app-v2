@@ -72,3 +72,19 @@ async def load_job_from_db(id):
 	await engine.dispose()
 
 
+async def add_application_to_db(job_id, data):
+	engine = create_async_engine(f"postgresql+asyncpg://{tmpPostgres.username}:{tmpPostgres.password}@{tmpPostgres.hostname}{tmpPostgres.path}?ssl=require", echo=True)
+	async with engine.connect() as conn:
+		query = text("INSERT INTO applications (job_id, full_name, email, linkedin_url, education, work_experience, resume_url) VALUES (:job_id, :full_name, :email, :linkedin_url, :education, :work_experience, :resume_url)")
+		await conn.execute(query, 
+						 {
+							"job_id": int(job_id), 
+						 	"full_name": data['full_name'],
+						 	"email": data['email'],
+						 	"linkedin_url": data['linkedin_url'],
+						 	"education": data['education'],
+						 	"work_experience": data['work_experience'],
+						 	"resume_url": data['resume_url']
+						})
+		await conn.commit()
+	await engine.dispose()
